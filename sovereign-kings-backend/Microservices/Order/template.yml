@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM template for Order
+
+Parameters:
+  AppName:
+    Type: String
+  Table:
+    Type: String
+  ServiceName:
+    Type: String
+  Stage:
+    Type: String
+  AwsLambdaPowertoolsPythonLayer:
+    Type: String
+  # LambdaAuthFunctionArn:
+  #   Type: String
+
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 1024
+    Layers:
+      - !Ref PythonRequirementsLayer
+      - !Ref UtilsLayer
+      - !Ref AwsLambdaPowertoolsPythonLayer
+    Runtime: python3.10
+    Tracing: Active
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        STAGE: !Ref Stage
+        TABLE_NAME: !Ref Table
+
+Resources:
+  OrderServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AppName}-${Stage}-${ServiceName}-lambda-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AppName}-${Stage}-${ServiceName}-lambda-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Table}"
+              # - Effect: Allow
+              #   Action:
+              #     - events:PutEvents
+              #   Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default"
+
+  OrderApiGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AppName}-${Stage}-${ServiceName}-api-gateway-role"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+        - "arn:aws:iam::aws:policy/AWSLambdaExecute"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AppName}-${Stage}-${ServiceName}-api-gateway-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource:
+                  - !GetAtt OrderCreateFunction.Arn
+                  # - !Ref LambdaAuthFunctionArn
+
+  PythonRequirementsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AppName}-${Stage}-${ServiceName}-python-requirements"
+      Description: Utility functions for Lambda
+      ContentUri: ./dependencies/requirements/
+      CompatibleRuntimes:
+        - python3.10
+      LicenseInfo: MIT
+    Metadata:
+      BuildMethod: python3.10
+
+  UtilsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AppName}-${Stage}-${ServiceName}-utils-layer"
+      Description: Utility functions for Lambda
+      ContentUri: ./dependencies/utils/
+    Metadata:
+      BuildMethod: python3.10
+
+  OrderCreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AppName}-${Stage}-${ServiceName}-create-function"
+      CodeUri: src/order_create/
+      Description: "Function to create orders"
+      Handler: main.handler
+      Role: !GetAtt OrderServiceRole.Arn

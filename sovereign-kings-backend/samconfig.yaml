@@ -1,1 +1,31 @@
 version: 0.1
+
+# Default environment (Staging)
+default:
+  deploy:
+    parameters:
+      capabilities:
+        - "CAPABILITY_IAM"
+        - "CAPABILITY_AUTO_EXPAND"
+        - "CAPABILITY_NAMED_IAM"
+      confirm_changeset: false
+      stack_name: "sovereign-kings-staging"
+      region: "us-east-1"
+      resolve_s3: true
+      s3_prefix: "sovereign-kings-staging"
+      parameter_overrides: "Stage=staging"
+
+# main environment
+prod:
+  deploy:
+    parameters:
+      capabilities:
+        - "CAPABILITY_IAM"
+        - "CAPABILITY_AUTO_EXPAND"
+        - "CAPABILITY_NAMED_IAM"
+      confirm_changeset: false
+      stack_name: "sovereign-kings-prod"
+      region: "us-east-1"
+      resolve_s3: true
+      s3_prefix: "sovereign-kings-prod"
+      parameter_overrides: "Stage=prod"
