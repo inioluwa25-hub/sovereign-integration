@@ -130,3 +130,20 @@ Resources:
       Description: "Function to create orders"
       Handler: main.handler
       Role: !GetAtt OrderServiceRole.Arn
+
+  OrderCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${OrderCreateFunction}
+      RetentionInDays: 14
+
+  OrderApiGateway:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: api.yml
+      Parameters:
+        AppName: !Ref AppName
+        Stage: !Ref Stage
+        ServiceName: !Ref ServiceName
+        OrderApiGatewayRoleArn: !GetAtt OrderApiGatewayRole.Arn
+        OrderCreateFunctionArn: !GetAtt OrderCreateFunction.Arn

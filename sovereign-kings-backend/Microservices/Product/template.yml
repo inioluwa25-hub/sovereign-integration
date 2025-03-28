@@ -130,3 +130,20 @@ Resources:
       Description: "Function to create products"
       Handler: main.handler
       Role: !GetAtt ProductServiceRole.Arn
+
+  ProductCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProductCreateFunction}
+      RetentionInDays: 14
+
+  ProductApiGateway:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: api.yml
+      Parameters:
+        AppName: !Ref AppName
+        Stage: !Ref Stage
+        ServiceName: !Ref ServiceName
+        ProductApiGatewayRoleArn: !GetAtt ProductApiGatewayRole.Arn
+        ProductCreateFunctionArn: !GetAtt ProductCreateFunction.Arn
