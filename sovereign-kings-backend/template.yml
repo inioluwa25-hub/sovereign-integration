@@ -53,3 +53,14 @@ Resources:
         ServiceName: "order"
         Table: !Ref MainTable
         AwsLambdaPowertoolsPythonLayer: !GetAtt AwsLambdaPowertoolsPythonLayer.Outputs.LayerVersionArn
+
+  ProductService:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: Microservices/Product/template.yml
+      Parameters:
+        AppName: !Ref AppName
+        Stage: !Ref Stage
+        ServiceName: "product"
+        Table: !Ref MainTable
+        AwsLambdaPowertoolsPythonLayer: !GetAtt AwsLambdaPowertoolsPythonLayer.Outputs.LayerVersionArn

@@ -1,0 +1,12 @@
+boto3
+requests
+requests-oauthlib
+PyMySQL
+opensearch-py
+requests_aws4auth
+PyPDF2
+requests
+Pillow
+sentry-sdk
+algoliasearch>=2.0,<3.0
+PyMySQL
