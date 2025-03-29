@@ -64,3 +64,14 @@ Resources:
         ServiceName: "product"
         Table: !Ref MainTable
         AwsLambdaPowertoolsPythonLayer: !GetAtt AwsLambdaPowertoolsPythonLayer.Outputs.LayerVersionArn
+
+  ContactService:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: Microservices/Contact/template.yml
+      Parameters:
+        AppName: !Ref AppName
+        Stage: !Ref Stage
+        ServiceName: "contact"
+        Table: !Ref MainTable
+        AwsLambdaPowertoolsPythonLayer: !GetAtt AwsLambdaPowertoolsPythonLayer.Outputs.LayerVersionArn
