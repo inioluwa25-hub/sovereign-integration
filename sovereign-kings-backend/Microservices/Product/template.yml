@@ -99,6 +99,10 @@ Resources:
                 Action: lambda:InvokeFunction
                 Resource:
                   - !GetAtt ProductCreateFunction.Arn
+                  - !GetAtt ProductUpdateFunction.Arn
+                  - !GetAtt ProductDeleteFunction.Arn
+                  - !GetAtt ProductGetFunction.Arn
+                  - !GetAtt ProductUploadImageFunction.Arn
                   # - !Ref LambdaAuthFunctionArn
 
   PythonRequirementsLayer:
