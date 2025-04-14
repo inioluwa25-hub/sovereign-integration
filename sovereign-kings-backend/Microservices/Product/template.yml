@@ -137,6 +137,66 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${ProductCreateFunction}
       RetentionInDays: 14
 
+  ProductUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AppName}-${Stage}-${ServiceName}-update-function"
+      CodeUri: src/product_update/
+      Description: "Function to update a product"
+      Handler: main.handler
+      Role: !GetAtt ProductServiceRole.Arn
+
+  ProductUpdateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProductUpdateFunction}
+      RetentionInDays: 14
+
+  ProductDeleteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AppName}-${Stage}-${ServiceName}-delete-function"
+      CodeUri: src/product_delete/
+      Description: "Function to delete a product"
+      Handler: main.handler
+      Role: !GetAtt ProductServiceRole.Arn
+
+  ProductDeleteFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProductDeleteFunction}
+      RetentionInDays: 14
+
+  ProductGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AppName}-${Stage}-${ServiceName}-get-function"
+      CodeUri: src/product_get/
+      Description: "Function to get a product"
+      Handler: main.handler
+      Role: !GetAtt ProductServiceRole.Arn
+
+  ProductGetFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProductGetFunction}
+      RetentionInDays: 14
+
+  ProductUploadImageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AppName}-${Stage}-${ServiceName}-upload-image-function"
+      CodeUri: src/upload_product_image/
+      Description: "Function to upload a product's image"
+      Handler: main.handler
+      Role: !GetAtt ProductServiceRole.Arn
+
+  ProductUploadImageFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProductUploadImageFunction}
+      RetentionInDays: 14
+
   ProductApiGateway:
     Type: AWS::Serverless::Application
     Properties:
@@ -147,3 +207,7 @@ Resources:
         ServiceName: !Ref ServiceName
         ProductApiGatewayRoleArn: !GetAtt ProductApiGatewayRole.Arn
         ProductCreateFunctionArn: !GetAtt ProductCreateFunction.Arn
+        ProductUpdateFunctionArn: !GetAtt ProductUpdateFunction.Arn
+        ProductDeleteFunctionArn: !GetAtt ProductDeleteFunction.Arn
+        ProductGetFunctionArn: !GetAtt ProductGetFunction.Arn
+        ProductUploadImageFunctionArn: !GetAtt ProductUploadImageFunction.Arn
